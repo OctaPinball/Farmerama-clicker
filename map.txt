@@ -1,0 +1,15 @@
+main
+map, 348, 235
+water, 590, 212
+access, 1070, 850
+szedult
+map, 348, 235
+water, 1185, 190
+access, 930, 670
+bahamara
+map, 360, 260
+water, 590, 250
+sub_access, 450, 820
+access, 840, 370
+escape, 480, 770
+end

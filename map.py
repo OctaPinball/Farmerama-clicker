@@ -2,6 +2,7 @@ import pyautogui as pt
 import time
 import click_verify_support as cv
 
+
 class Map:
     def __init__(self, name, map_access, access, water=None, sub_access=None, escape=None):
         self.name = name
@@ -12,7 +13,6 @@ class Map:
         self.escape = escape
         self.tiles = []
         self.load_tiles()
-
 
     def load_tiles(self):
         file = open(self.name + ".txt", 'r')
@@ -39,7 +39,8 @@ class Map:
                     for tile in tiles_iter:
                         pt.moveTo(tile[0], tile[1])
                         pt.click()
-                        if pt.locateOnScreen('water_1.png', confidence=0.9) is not None or pt.locateOnScreen('out_of.png', confidence=0.8) is not None:
+                        if pt.locateOnScreen('water_1.png', confidence=0.9) is not None or pt.locateOnScreen(
+                                'out_of.png', confidence=0.8) is not None:
                             if pt.locateOnScreen('out_of.png', confidence=0.8) is not None:
                                 pt.moveTo(960, 870)
                                 pt.click()
@@ -104,14 +105,41 @@ class Map:
         for tile in self.tiles:
             pt.moveTo(tile[0], tile[1])
             pt.click()
-            try:
-                position = pt.locateOnScreen('in.png', confidence=0.8)
+            position = pt.locateOnScreen('in.png', confidence=0.8)
+            if position is not None:
                 pt.moveTo(position[0] + 25, position[1] + 25)
                 pt.click()
-            except:
+            else:
                 print("No image found")
                 pt.moveTo(1626, 955)
                 pt.click()
+
+    def harvest_and_feed(self):
+        for tile in self.tiles:
+            pt.moveTo(tile[0], tile[1])
+            pt.click()
+            position = pt.locateOnScreen('in.png', confidence=0.8)
+            position2 = pt.locateOnScreen('fertilizer.png', confidence=0.8)
+            position3 = pt.locateOnScreen('feed.png', confidence=0.8)
+            if position is not None:
+                pt.moveTo(position[0] + 25, position[1] + 25)
+                pt.click()
+            elif position2 is not None:
+                pt.moveTo(position2[0] + 25, position2[1] + 25)
+                pt.click()
+            elif position3 is not None:
+                pt.moveTo(position3[0] + 25, position3[1] + 25)
+                pt.click()
+                self.check_and_exit_mill()
+            else:
+                print("No image found")
+                pt.moveTo(1626, 955)
+                pt.click()
+
+    def check_and_exit_mill(self):
+        if pt.locateOnScreen('mill.png', confidence=0.8) is not None:
+            cv.verify_click_with_picture(1435, 230, 'mill.png', "Mill not found")
+            cv.verify_click_with_no_picture(1535, 220, 'mill.png', "Mill not found")
 
     def exit(self):
         while True:
@@ -137,7 +165,8 @@ class Map:
             while True:
                 pt.moveTo(self.sub_access[0], self.sub_access[1])
                 pt.click()
-                if pt.locateOnScreen('baha_enter_confirm.png', confidence=0.8) is not None or pt.locateOnScreen('baha_enter_confirm.png', confidence=0.8) is not None:
+                if pt.locateOnScreen('baha_enter_confirm.png', confidence=0.8) is not None or pt.locateOnScreen(
+                        'baha_enter_confirm.png', confidence=0.8) is not None:
                     pt.moveTo(1626, 955)
                     pt.click()
                     break

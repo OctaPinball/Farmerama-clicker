@@ -8,10 +8,10 @@ from map import Map
 
 def init():
     pt.moveTo(220, 1058)
-    pt.click()
+    #pt.click()
     md.load_maps()
     pt.moveTo(256, 135)
-    pt.click()
+    #pt.click()
     cm.run_menu()
 
 

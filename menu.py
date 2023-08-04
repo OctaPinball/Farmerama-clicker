@@ -73,26 +73,41 @@ def get_key():  # get keypress using getch , msvcrt = windows or termios = linux
         exit()
 
 
-def get_menu_choice(options, isclean=False):
+def get_menu_choice(options, selectable_options=None, index_layers=[], isclean=False):
+    if selectable_options is None:
+        selectable_options = options
     shortcuts = scan_short_cuts(options)  # scan for shortcuts
     selected_index = 0
     print(shortcuts)
     while True:
-        show_menu(options, selected_index, isclean)
+        os.system("cls" if os.name == "nt" else "clear")
+        t = index_layers.copy()
+        t.append(selected_index)
+        show_layered_menu(options, t, 0)
         key = get_key()
         if key == 'enter':  # Enter key to select
-            return selected_index
+            il = index_layers.copy()
+            il.append(selected_index)
+            if len(selectable_options[selected_index]) == 2:
+                i = get_menu_choice(options, selectable_options=selectable_options[selected_index][1], index_layers=il, isclean=isclean)
+                if i is not None:
+                    return i
+            else:
+                return il
+        elif key in ('\b', 'esc'):
+            if len(index_layers) != 0:
+                return None
         elif key in ('up', 'down'):  # Up or Down arrow
-            selected_index = (selected_index + (1 if key == 'down' else -1) + len(options)) % len(options)
+            selected_index = (selected_index + (1 if key == 'down' else -1) + len(selectable_options)) % len(selectable_options)
         elif key in shortcuts:  # Shortcut key
-            show_menu(options, shortcuts[key], isclean)  # show selected option when using shortcut
+            show_layered_menu(options, t, 0)
             return shortcuts[key]
 
 
 def scan_short_cuts(options):
     shortcuts = {}
     for i, option in enumerate(options):
-        match = re.match(r"\[(.*)\](.*)", option)
+        match = re.match(r"\[(.*)\](.*)", option[0])
         if match:
             shortcut, text = match.group(1, 2)
             shortcuts[shortcut] = i
@@ -124,3 +139,26 @@ def show_clean_menu(options, selected_index):
             print(f"> {option}")
         else:
             print(f"  {option}")
+
+
+def show_layered_menu(options, selected_index, layer):
+    for i, option in enumerate(options):
+        if i == selected_index[layer]:
+            print_options(option, layer, True)
+            if len(option) == 2 and len(selected_index) > layer + 1:
+                show_layered_menu(option[1], selected_index, layer + 1)
+        else:
+            print_options(option, layer, False)
+
+
+def print_options(option, layer, selected):
+    if selected == True:
+        if type(option) is str:
+            print('\t' * layer + f"> {option}")
+        else:
+            print('\t' * layer + f"> {option[0]}")
+    else:
+        if type(option) is str:
+            print('\t' * layer + f"  {option}")
+        else:
+            print('\t' * layer + f"  {option[0]}")
